@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"log"
+	"slices"
 	"strconv"
 
 	"github.com/kevin-kho/aoc-utilities/common"
@@ -21,6 +22,7 @@ func GetIntSlc(data []byte) ([]int, error) {
 	return res, nil
 }
 
+// Two Sum
 func SolvePartOne(intSlc []int) int {
 	seen := make(map[int]bool)
 
@@ -30,6 +32,34 @@ func SolvePartOne(intSlc []int) int {
 			return comp * i
 		}
 		seen[i] = true
+	}
+
+	return -1
+}
+
+// Three Sum
+func SolvePartTwo(intSlc []int) int {
+	nums := slices.Clone(intSlc)
+	slices.Sort(nums)
+
+	for i, num := range nums {
+
+		l := i + 1
+		r := len(nums) - 1
+		for l < r {
+			summed := nums[l] + num + nums[r]
+			if summed == 2020 {
+				return nums[l] * num * nums[r]
+			}
+
+			if summed > 2020 {
+				r -= 1
+			} else {
+				l += 1
+			}
+
+		}
+
 	}
 
 	return -1
@@ -48,5 +78,8 @@ func main() {
 
 	res := SolvePartOne(intSlc)
 	fmt.Println(res)
+
+	res2 := SolvePartTwo(intSlc)
+	fmt.Println(res2)
 
 }
