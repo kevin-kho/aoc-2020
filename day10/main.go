@@ -45,6 +45,45 @@ func SolvePartOne(adapters []int) int {
 
 }
 
+// Basically climbing stairs
+func SolvePartTwo(adapters []int) int {
+	slices.Sort(adapters)
+
+	adapters = slices.Concat([]int{0}, adapters)
+	dp := make([]int, len(adapters))
+	dp[0] = 1
+
+	for i := 1; i < len(adapters); i++ {
+		currVal := adapters[i]
+		i1 := i - 1
+		i2 := i - 2
+		i3 := i - 3
+
+		var val int
+
+		if i1 >= 0 && currVal-adapters[i1] <= 3 {
+			// val += 1
+			val += dp[i1]
+		}
+
+		if i2 >= 0 && currVal-adapters[i2] <= 3 {
+			// val += 1
+			val += dp[i2]
+		}
+
+		if i3 >= 0 && currVal-adapters[i3] <= 3 {
+			// val += 1
+			val += dp[i3]
+		}
+
+		dp[i] = val
+
+	}
+
+	return dp[len(dp)-1]
+
+}
+
 func main() {
 
 	// data, err := common.ReadInput("inputExample.txt")
@@ -61,6 +100,9 @@ func main() {
 	}
 
 	res := SolvePartOne(adapters)
+	fmt.Println(res)
+
+	res = SolvePartTwo(adapters)
 	fmt.Println(res)
 
 }
