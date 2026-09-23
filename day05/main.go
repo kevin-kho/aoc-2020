@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"log"
+	"slices"
 
 	"github.com/kevin-kho/aoc-utilities/common"
 )
@@ -96,6 +97,30 @@ func SolvePartOne(instructions []Instruction) int {
 	return res
 }
 
+func SolvePartTwo(instructions []Instruction) int {
+	var res int
+	var ids []int
+	for _, i := range instructions {
+		id := i.GetSeat().GetSeatId()
+		ids = append(ids, id)
+	}
+	slices.Sort(ids)
+
+	for i := 1; i < len(ids); i++ {
+		l := ids[i-1]
+		r := ids[i]
+
+		if l+2 == r {
+			res = l + 1
+			break
+		}
+
+	}
+
+	return res
+
+}
+
 func main() {
 	// data, err := common.ReadInput("inputExample.txt")
 	data, err := common.ReadInput("input.txt")
@@ -107,5 +132,8 @@ func main() {
 	ins := CreateInstructions(data)
 	res := SolvePartOne(ins)
 	fmt.Println(res)
+
+	res2 := SolvePartTwo(ins)
+	fmt.Println(res2)
 
 }
