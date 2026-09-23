@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"log"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -40,17 +41,22 @@ func GetCommands(data []byte) ([]Command, error) {
 
 func SolvePartOne(cmds []Command) int {
 	var res int
+	prevI := 0
 	i := 0
 	seen := make(map[int]bool)
+	var broke bool
 
 	for i < len(cmds) {
 
 		if seen[i] {
+			fmt.Println("cycle found at index: ", i, prevI, cmds[i])
+			broke = true
 			break
 		}
 
 		seen[i] = true
 
+		prevI = i
 		switch cmds[i].Action {
 		case "nop":
 			i++
@@ -63,7 +69,44 @@ func SolvePartOne(cmds []Command) int {
 
 	}
 
+	if !broke {
+		fmt.Println("exited normally")
+	}
+
 	return res
+
+}
+
+func FindCandidates(cmds []Command) {
+	// In input.txt, you need to find a way to the last 5 commands
+	dest := make(map[int]bool)
+	for i := len(cmds) - 5; i < len(cmds); i++ {
+		dest[i] = true
+		fmt.Println(i)
+	}
+
+}
+
+func SolvePartTwo(cmds []Command) {
+
+	var idxes []int // indexes of all nop and jmp cmds
+	for i, cmd := range cmds {
+		if cmd.Action == "nop" || cmd.Action == "jmp" {
+			idxes = append(idxes, i)
+		}
+	}
+
+	for _, i := range idxes {
+		cmds := slices.Clone(cmds)
+		switch cmds[i].Action {
+		case "nop":
+			cmds[i].Action = "jmp"
+		case "jmp":
+			cmds[i].Action = "nop"
+		}
+		res := SolvePartOne(cmds)
+		fmt.Println(res)
+	}
 
 }
 
@@ -83,5 +126,7 @@ func main() {
 
 	res := SolvePartOne(cmds)
 	fmt.Println(res)
+
+	SolvePartTwo(cmds)
 
 }
