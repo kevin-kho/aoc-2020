@@ -91,6 +91,33 @@ func SolvePartOne(mp BagMap) int {
 
 }
 
+func SolvePartTwo(mp BagMap) int {
+
+	memo := make(map[string]int)
+
+	var dfs func(bag string) int
+	dfs = func(bag string) int {
+
+		// memoization
+		if val, ok := memo[bag]; ok {
+			return val
+		}
+
+		ct := 1
+		for _, c := range mp[bag] {
+			ct += dfs(c)
+		}
+
+		memo[bag] = ct
+		return memo[bag]
+	}
+
+	res := dfs("shiny gold bag")
+
+	return res - 1
+
+}
+
 func main() {
 	// data, err := common.ReadInput("inputExample.txt")
 	data, err := common.ReadInput("input.txt")
@@ -106,5 +133,8 @@ func main() {
 
 	res := SolvePartOne(mp)
 	fmt.Println(res)
+
+	res2 := SolvePartTwo(mp)
+	fmt.Println(res2)
 
 }
