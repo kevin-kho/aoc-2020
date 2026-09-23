@@ -13,17 +13,17 @@ type Group struct {
 	Answers []string
 }
 
-func (g Group) GetQuestions() map[rune]bool {
+func (g Group) GetQuestions() map[rune]int {
 
 	var sb strings.Builder
 	for _, a := range g.Answers {
 		sb.WriteString(a)
 	}
 
-	q := make(map[rune]bool)
+	q := make(map[rune]int)
 
 	for _, c := range sb.String() {
-		q[c] = true
+		q[c]++
 	}
 
 	return q
@@ -55,6 +55,19 @@ func SolvePartOne(grps []Group) int {
 
 }
 
+func SolvePartTwo(grps []Group) int {
+	var res int
+	for _, g := range grps {
+		for _, ct := range g.GetQuestions() {
+			if ct == len(g.Answers) {
+				res++
+			}
+		}
+	}
+
+	return res
+}
+
 func main() {
 	// data, err := common.ReadInput("inputExample.txt")
 	data, err := common.ReadInput("input.txt")
@@ -67,4 +80,7 @@ func main() {
 
 	res := SolvePartOne(grps)
 	fmt.Println(res)
+
+	res2 := SolvePartTwo(grps)
+	fmt.Println(res2)
 }
