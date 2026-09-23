@@ -61,6 +61,43 @@ func SolvePartOne(intArr []int, preamble int) int {
 
 }
 
+func SolvePartTwo(intArr []int, target int) int {
+
+	// sliding window
+	l := 0
+	var end int
+	curr := 0
+
+	for r := range len(intArr) {
+		curr += intArr[r]
+
+		if curr >= target {
+
+			// slide window for as long as curr > target
+			for curr > target {
+				curr -= intArr[l]
+				l++
+			}
+
+			// found item
+			if curr == target && r-l+1 >= 2 {
+				end = r
+				break
+			}
+		}
+	}
+
+	mn := intArr[l]
+	mx := intArr[l]
+	for _, val := range intArr[l : end+1] {
+		mn = min(mn, val)
+		mx = max(mx, val)
+	}
+
+	return mn + mx
+
+}
+
 func main() {
 	// data, err := common.ReadInput("inputExample.txt")
 	data, err := common.ReadInput("input.txt")
@@ -77,5 +114,8 @@ func main() {
 	// res := SolvePartOne(intArr, 5)
 	res := SolvePartOne(intArr, 25)
 	fmt.Println(res)
+
+	res2 := SolvePartTwo(intArr, res)
+	fmt.Println(res2)
 
 }
