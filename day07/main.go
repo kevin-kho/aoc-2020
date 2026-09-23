@@ -46,8 +46,54 @@ func GetBagMap(data []byte) (BagMap, error) {
 
 }
 
+func SolvePartOne(mp BagMap) int {
+	memo := make(map[string]bool)
+
+	var dfs func(bag string) bool
+	dfs = func(bag string) bool {
+
+		// memoization
+		if val, ok := memo[bag]; ok {
+			return val
+		}
+
+		if bag == "shiny gold bag" {
+			return true
+		}
+
+		contains := false
+		for _, c := range mp[bag] {
+			contains = contains || dfs(c)
+		}
+
+		memo[bag] = contains
+		return memo[bag]
+	}
+
+	for k := range mp {
+		if k == "shiny gold bag" {
+			continue
+		}
+
+		if dfs(k) {
+			memo[k] = true
+		}
+	}
+
+	var count int
+	for _, v := range memo {
+		if v {
+			count++
+		}
+	}
+
+	return count
+
+}
+
 func main() {
-	data, err := common.ReadInput("inputExample.txt")
+	// data, err := common.ReadInput("inputExample.txt")
+	data, err := common.ReadInput("input.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -58,8 +104,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	for k, v := range mp {
-		fmt.Println(k, v)
-	}
+	res := SolvePartOne(mp)
+	fmt.Println(res)
 
 }
