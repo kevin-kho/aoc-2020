@@ -21,7 +21,7 @@ type Password struct {
 	Policy Policy
 }
 
-func (p Password) IsValid() bool {
+func (p Password) IsValidPartOne() bool {
 	var count int
 	for _, r := range p.Value {
 		if r == p.Policy.Character {
@@ -29,6 +29,14 @@ func (p Password) IsValid() bool {
 		}
 	}
 	return p.Policy.Min <= count && count <= p.Policy.Max
+}
+
+func (p Password) IsValidPartTwo() bool {
+	l := rune(p.Value[p.Policy.Min-1])
+	r := rune(p.Value[p.Policy.Max-1])
+
+	return l != r && (l == p.Policy.Character || r == p.Policy.Character)
+
 }
 
 func GetPasswords(data []byte) ([]Password, error) {
@@ -71,7 +79,18 @@ func GetPasswords(data []byte) ([]Password, error) {
 func SolvePartOne(pwds []Password) int {
 	var count int
 	for _, p := range pwds {
-		if p.IsValid() {
+		if p.IsValidPartOne() {
+			count++
+		}
+	}
+
+	return count
+}
+
+func SolvePartTwo(pwds []Password) int {
+	var count int
+	for _, p := range pwds {
+		if p.IsValidPartTwo() {
 			count++
 		}
 	}
@@ -94,4 +113,6 @@ func main() {
 	res := SolvePartOne(pwds)
 	fmt.Println(res)
 
+	res2 := SolvePartTwo(pwds)
+	fmt.Println(res2)
 }
