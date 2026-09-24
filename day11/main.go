@@ -2,7 +2,9 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"log"
+	"maps"
 
 	"github.com/kevin-kho/aoc-utilities/common"
 )
@@ -74,18 +76,66 @@ func CreateGrid(data []byte) Grid {
 	}
 }
 
-func SolvePartOne(grid Grid) {
+func SolvePartOne(grid Grid) int {
+
+	for {
+		empty := make(map[Pos]bool)
+		filled := make(map[Pos]bool)
+
+		// assess empty
+		for s := range grid.Empty {
+			var count int
+			adj := s.GetAdjacentPos()
+			for _, a := range adj {
+				if grid.Filled[a] {
+					count++
+				}
+			}
+			if count == 0 {
+				filled[s] = true
+			} else {
+				empty[s] = true
+			}
+		}
+
+		// assess filled
+		for s := range grid.Filled {
+			var count int
+			adj := s.GetAdjacentPos()
+			for _, a := range adj {
+				if grid.Filled[a] {
+					count++
+				}
+			}
+			if count >= 4 {
+				empty[s] = true
+			} else {
+				filled[s] = true
+			}
+		}
+
+		if maps.Equal(empty, grid.Empty) && maps.Equal(filled, grid.Filled) {
+			break
+		}
+
+		grid.Empty = empty
+		grid.Filled = filled
+	}
+
+	return len(grid.Filled)
 
 }
 
 func main() {
-	data, err := common.ReadInput("inputExample.txt")
+	// data, err := common.ReadInput("inputExample.txt")
+	data, err := common.ReadInput("input.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
 	data = common.TrimNewLineSuffix(data)
 	grid := CreateGrid(data)
 
-	SolvePartOne(grid)
+	res := SolvePartOne(grid)
+	fmt.Println(res)
 
 }
