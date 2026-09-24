@@ -9,9 +9,14 @@ import (
 	"github.com/kevin-kho/aoc-utilities/common"
 )
 
+type Bus struct {
+	Id    int
+	Index int
+}
+
 type State struct {
 	Time  int
-	Buses []int
+	Buses []Bus
 }
 
 func GetCurrentState(data []byte) (State, error) {
@@ -25,8 +30,8 @@ func GetCurrentState(data []byte) (State, error) {
 		return res, err
 	}
 
-	var buses []int
-	for val := range strings.SplitSeq(busStr, ",") {
+	var buses []Bus
+	for i, val := range strings.Split(busStr, ",") {
 		if val == "x" {
 			continue
 		}
@@ -35,7 +40,10 @@ func GetCurrentState(data []byte) (State, error) {
 		if err != nil {
 			return res, err
 		}
-		buses = append(buses, id)
+		buses = append(buses, Bus{
+			Id:    id,
+			Index: i,
+		})
 	}
 
 	res.Time = time
@@ -49,15 +57,15 @@ func SolvePartOne(state State) int {
 
 	mp := make(map[int]int) // key: busId, value: minutes
 
-	for _, busId := range state.Buses {
-		rem := state.Time % busId
+	for _, bus := range state.Buses {
+		rem := state.Time % bus.Id
 
 		// Bus is available from the start
 		if rem == 0 {
-			return busId * rem
+			return bus.Id * rem
 		}
 
-		mp[busId] = busId - rem
+		mp[bus.Id] = bus.Id - rem
 
 	}
 
