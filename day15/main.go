@@ -6,7 +6,7 @@ import (
 	"github.com/kevin-kho/aoc-utilities/common"
 )
 
-func SolvePartOne(arr []int) {
+func SolvePartOne(arr []int, turnCount int) {
 
 	// key: int
 	// values: the last two occurances; treat it like a queue
@@ -20,7 +20,7 @@ func SolvePartOne(arr []int) {
 
 	turn := len(arr) + 1
 	prev := arr[len(arr)-1]
-	for turn < 2021 {
+	for turn < turnCount+1 {
 
 		// case: prev not seen, speak 0
 		if len(lastSeen[prev]) == 1 {
@@ -48,5 +48,6 @@ func SolvePartOne(arr []int) {
 func main() {
 	fmt.Println("hi")
 	// SolvePartOne([]int{0, 3, 6})
-	SolvePartOne([]int{6, 4, 12, 1, 20, 0, 16})
+	SolvePartOne([]int{6, 4, 12, 1, 20, 0, 16}, 2000)
+	SolvePartOne([]int{6, 4, 12, 1, 20, 0, 16}, 30000000)
 }
