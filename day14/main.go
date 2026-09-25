@@ -12,6 +12,20 @@ import (
 
 type CommandType int
 
+type Memory map[int]string
+
+func (m Memory) Totalize() (int64, error) {
+	var res int64
+	for _, val := range m {
+		i, err := strconv.ParseInt(val, 2, 0)
+		if err != nil {
+			return res, err
+		}
+		res += i
+	}
+	return res, nil
+}
+
 const (
 	CommandTypeMask CommandType = iota
 	CommandTypeWrite
@@ -63,6 +77,7 @@ func CreateWriteCmd(data []byte) (Command, error) {
 	}
 	val = fmt.Sprintf("%036b", valInt)
 
+	res.Type = CommandTypeWrite
 	res.Address = addrInt
 	res.Value = val
 	return res, nil
@@ -95,8 +110,47 @@ func GetCommands(data []byte) ([]Command, error) {
 
 }
 
+func ApplyMask(mask string, val string) string {
+	var sb strings.Builder
+	for i := range len(mask) {
+		m := mask[i]
+		v := val[i]
+
+		if m == 'X' {
+			sb.WriteByte(v)
+		} else {
+			sb.WriteByte(m)
+		}
+	}
+
+	return sb.String()
+}
+
+func SolvePartOne(cmds []Command) (int64, error) {
+	mp := make(Memory)
+	var mask string
+	for _, cmd := range cmds {
+		switch cmd.Type {
+		case CommandTypeMask:
+			mask = cmd.Value
+		case CommandTypeWrite:
+			val := ApplyMask(mask, cmd.Value)
+			mp[cmd.Address] = val
+		}
+	}
+
+	res, err := mp.Totalize()
+	if err != nil {
+		return res, err
+	}
+
+	return res, nil
+
+}
+
 func main() {
-	data, err := common.ReadInput("inputExample.txt")
+	// data, err := common.ReadInput("inputExample.txt")
+	data, err := common.ReadInput("input.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -107,6 +161,10 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println(cmds)
+	res, err := SolvePartOne(cmds)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(res)
 
 }
