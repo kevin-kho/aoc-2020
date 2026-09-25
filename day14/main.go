@@ -12,7 +12,7 @@ import (
 
 type CommandType int
 
-type Memory map[int]string
+type Memory map[string]string
 
 func (m Memory) Totalize() (int64, error) {
 	var res int64
@@ -110,7 +110,7 @@ func GetCommands(data []byte) ([]Command, error) {
 
 }
 
-func ApplyMask(mask string, val string) string {
+func MaskValue(mask string, val string) string {
 	var sb strings.Builder
 	for i := range len(mask) {
 		m := mask[i]
@@ -126,6 +126,25 @@ func ApplyMask(mask string, val string) string {
 	return sb.String()
 }
 
+func MaskAddress(mask string, address string) string {
+	var sb strings.Builder
+
+	for i := range len(mask) {
+		m := mask[i]
+		a := address[i]
+
+		switch m {
+		case '0':
+			sb.WriteByte(a)
+		case 'X', '1':
+			sb.WriteByte(m)
+		}
+
+	}
+
+	return sb.String()
+}
+
 func SolvePartOne(cmds []Command) (int64, error) {
 	mp := make(Memory)
 	var mask string
@@ -134,8 +153,8 @@ func SolvePartOne(cmds []Command) (int64, error) {
 		case CommandTypeMask:
 			mask = cmd.Value
 		case CommandTypeWrite:
-			val := ApplyMask(mask, cmd.Value)
-			mp[cmd.Address] = val
+			val := MaskValue(mask, cmd.Value)
+			mp[fmt.Sprintf("%036b", cmd.Address)] = val
 		}
 	}
 
@@ -144,6 +163,58 @@ func SolvePartOne(cmds []Command) (int64, error) {
 		return res, err
 	}
 
+	return res, nil
+
+}
+
+func UnfloatAddress(addrFloat string) []string {
+	var res []string
+
+	var dfs func(i int, curr string)
+	dfs = func(i int, curr string) {
+
+		// exit condition
+		if i == len(addrFloat) {
+			res = append(res, curr)
+			return
+		}
+
+		char := addrFloat[i]
+		switch char {
+		case 'X':
+			dfs(i+1, curr+"0")
+			dfs(i+1, curr+"1")
+		default:
+			dfs(i+1, curr+string(char))
+		}
+
+	}
+
+	dfs(0, "")
+
+	return res
+}
+
+func SolvePartTwo(cmds []Command) (int64, error) {
+
+	mp := make(Memory)
+	var mask string
+	for _, cmd := range cmds {
+		switch cmd.Type {
+		case CommandTypeMask:
+			mask = cmd.Value
+		case CommandTypeWrite:
+			addrFloat := MaskAddress(mask, fmt.Sprintf("%036b", cmd.Address))
+			for _, addr := range UnfloatAddress(addrFloat) {
+				mp[addr] = cmd.Value
+			}
+		}
+	}
+
+	res, err := mp.Totalize()
+	if err != nil {
+		return res, err
+	}
 	return res, nil
 
 }
@@ -166,5 +237,11 @@ func main() {
 		log.Fatal(err)
 	}
 	fmt.Println(res)
+
+	res2, err := SolvePartTwo(cmds)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(res2)
 
 }
