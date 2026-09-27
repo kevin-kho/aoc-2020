@@ -40,6 +40,18 @@ func CreateGrid(data []byte) Grid {
 					Z: 0,
 				}] = true
 			}
+
+			// Set all x,y along z = -1 and z = +1 as inactive
+			inactive[Pos{
+				X: x,
+				Y: y,
+				Z: -1,
+			}] = true
+			inactive[Pos{
+				X: x,
+				Y: y,
+				Z: 1,
+			}] = true
 		}
 	}
 
@@ -72,14 +84,74 @@ func GetDeltas() []Pos {
 
 }
 
+func SolvePartOne(grid Grid) int {
+	deltas := GetDeltas()
+
+	for range 6 {
+		active := make(map[Pos]bool)
+		inactive := make(map[Pos]bool)
+
+		// assess active
+		for p := range grid.Active {
+			var nei int
+			for _, d := range deltas {
+				n := Pos{
+					X: p.X + d.X,
+					Y: p.Y + d.Y,
+					Z: p.Z + d.Z,
+				}
+				if grid.Active[n] {
+					nei++
+				} else {
+					grid.Inactive[n] = true
+				}
+			}
+			if nei == 2 || nei == 3 {
+				active[p] = true
+			} else {
+				inactive[p] = true
+			}
+		}
+
+		// assess inactive
+		for p := range grid.Inactive {
+			var nei int
+			for _, d := range deltas {
+				n := Pos{
+					X: p.X + d.X,
+					Y: p.Y + d.Y,
+					Z: p.Z + d.Z,
+				}
+				if grid.Active[n] {
+					nei++
+				}
+			}
+			if nei == 3 {
+				active[p] = true
+			} else {
+				inactive[p] = true
+			}
+		}
+
+		grid.Active = active
+		grid.Inactive = inactive
+	}
+
+	return len(grid.Active)
+
+}
+
 func main() {
-	data, err := common.ReadInput("inputExample.txt")
+	// data, err := common.ReadInput("inputExample.txt")
+	data, err := common.ReadInput("input.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
 	data = common.TrimNewLineSuffix(data)
 
 	grid := CreateGrid(data)
-	fmt.Println(grid)
+
+	res := SolvePartOne(grid)
+	fmt.Println(res)
 
 }
