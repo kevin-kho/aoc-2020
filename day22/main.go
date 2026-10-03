@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"log"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -83,9 +84,68 @@ func SolvePartOne(p1Cards, p2Cards Hand) int {
 
 }
 
+func SolvePartTwo(p1Cards, p2Cards Hand) {
+
+	// bool represents if p1 wins
+	var recurse func(p1Hand, p2Hand Hand, p1Seen, p2Seen map[string]bool, game int) bool
+	recurse = func(p1Hand, p2Hand Hand, p1Seen, p2Seen map[string]bool, game int) bool {
+
+		fmt.Println(p1Hand, p2Hand, game)
+
+		// exit condition: player one lost
+		if len(p1Hand) == 0 {
+			return false
+		}
+
+		// exit condition: player one wins
+		if len(p2Hand) == 0 {
+			return true
+		}
+
+		if p1Seen[p1Hand.GetString()] && p2Seen[p2Hand.GetString()] {
+			return true
+		}
+
+		p1Seen[p1Hand.GetString()] = true
+		p2Seen[p2Hand.GetString()] = true
+		p1Card, p2Card := p1Hand[0], p2Hand[0]
+		p1Hand, p2Hand = p1Hand[1:], p2Hand[1:]
+
+		var p1Wins bool
+		// Subgame condition
+		if p1Card <= len(p1Hand) && p2Card <= len(p2Hand) {
+			p1Wins = p1Wins || recurse(slices.Clone(p1Hand), slices.Clone(p2Hand), map[string]bool{}, map[string]bool{}, game+1)
+		} else if p1Card > p2Card {
+			p1Wins = true
+		} else if p1Card < p2Card {
+			p1Wins = false
+		} else {
+			// Tie
+			p1Hand = append(p1Hand, p1Card)
+			p2Hand = append(p2Hand, p2Card)
+			return recurse(p1Hand, p2Hand, p1Seen, p2Seen, game)
+		}
+
+		// Non-tie situations
+		if p1Wins {
+			p1Hand = append(p1Hand, p1Card, p2Card)
+		} else {
+			p2Hand = append(p2Hand, p2Card, p1Card)
+		}
+
+		return recurse(p1Hand, p2Hand, p1Seen, p2Seen, game)
+
+	}
+
+	p1Wins := recurse(p1Cards, p2Cards, map[string]bool{}, map[string]bool{}, 1)
+	fmt.Println(p1Wins)
+	fmt.Println(p1Cards, p2Cards)
+
+}
+
 func main() {
-	// p1Data, err := common.ReadInput("player1Example.txt")
-	p1Data, err := common.ReadInput("player1.txt")
+	p1Data, err := common.ReadInput("player1Example.txt")
+	// p1Data, err := common.ReadInput("player1.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -94,10 +154,9 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(p1Cards.GetString())
 
-	// p2Data, err := common.ReadInput("player2Example.txt")
-	p2Data, err := common.ReadInput("player2.txt")
+	p2Data, err := common.ReadInput("player2Example.txt")
+	// p2Data, err := common.ReadInput("player2.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -106,9 +165,10 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(p2Cards.GetString())
 
 	res := SolvePartOne(p1Cards, p2Cards)
 	fmt.Println(res)
+
+	SolvePartTwo(p1Cards, p2Cards)
 
 }
