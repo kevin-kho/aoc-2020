@@ -5,11 +5,26 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"strings"
 
 	"github.com/kevin-kho/aoc-utilities/common"
 )
 
-func GetCards(data []byte) ([]int, error) {
+type Hand []int
+
+func (h Hand) GetString() string {
+	var sb strings.Builder
+
+	for _, val := range h {
+		sb.WriteString(strconv.Itoa(val))
+		sb.WriteByte(',')
+	}
+
+	return sb.String()
+
+}
+
+func GetCards(data []byte) (Hand, error) {
 	var res []int
 
 	for card := range bytes.SplitSeq(data, []byte{'\n'}) {
@@ -35,7 +50,7 @@ func CalculateScore(cards []int) int {
 	return res
 }
 
-func SolvePartOne(p1Cards, p2Cards []int) int {
+func SolvePartOne(p1Cards, p2Cards Hand) int {
 
 	for len(p1Cards) > 0 && len(p2Cards) > 0 {
 		p1 := p1Cards[0]
@@ -79,6 +94,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	fmt.Println(p1Cards.GetString())
 
 	// p2Data, err := common.ReadInput("player2Example.txt")
 	p2Data, err := common.ReadInput("player2.txt")
@@ -90,6 +106,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	fmt.Println(p2Cards.GetString())
 
 	res := SolvePartOne(p1Cards, p2Cards)
 	fmt.Println(res)
