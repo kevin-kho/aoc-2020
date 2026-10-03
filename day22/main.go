@@ -86,11 +86,12 @@ func SolvePartOne(p1Cards, p2Cards Hand) int {
 
 func SolvePartTwo(p1Cards, p2Cards Hand) {
 
+	gameCount := 1
 	// bool represents if p1 wins
-	var recurse func(p1Hand, p2Hand Hand, p1Seen, p2Seen map[string]bool, game int) bool
-	recurse = func(p1Hand, p2Hand Hand, p1Seen, p2Seen map[string]bool, game int) bool {
+	var recurse func(p1Hand, p2Hand Hand, p1Seen, p2Seen map[string]bool, game int, round int) bool
+	recurse = func(p1Hand, p2Hand Hand, p1Seen, p2Seen map[string]bool, game int, round int) bool {
 
-		fmt.Println(p1Hand, p2Hand, game)
+		fmt.Println(p1Hand, p2Hand, game, round)
 
 		// exit condition: player one lost
 		if len(p1Hand) == 0 {
@@ -114,7 +115,8 @@ func SolvePartTwo(p1Cards, p2Cards Hand) {
 		var p1Wins bool
 		// Subgame condition
 		if p1Card <= len(p1Hand) && p2Card <= len(p2Hand) {
-			p1Wins = p1Wins || recurse(slices.Clone(p1Hand), slices.Clone(p2Hand), map[string]bool{}, map[string]bool{}, game+1)
+			gameCount++
+			p1Wins = p1Wins || recurse(slices.Clone(p1Hand[:p1Card]), slices.Clone(p2Hand[:p2Card]), map[string]bool{}, map[string]bool{}, gameCount, 1)
 		} else if p1Card > p2Card {
 			p1Wins = true
 		} else if p1Card < p2Card {
@@ -123,7 +125,7 @@ func SolvePartTwo(p1Cards, p2Cards Hand) {
 			// Tie
 			p1Hand = append(p1Hand, p1Card)
 			p2Hand = append(p2Hand, p2Card)
-			return recurse(p1Hand, p2Hand, p1Seen, p2Seen, game)
+			return recurse(p1Hand, p2Hand, p1Seen, p2Seen, game, round+1)
 		}
 
 		// Non-tie situations
@@ -133,11 +135,12 @@ func SolvePartTwo(p1Cards, p2Cards Hand) {
 			p2Hand = append(p2Hand, p2Card, p1Card)
 		}
 
-		return recurse(p1Hand, p2Hand, p1Seen, p2Seen, game)
+		return recurse(p1Hand, p2Hand, p1Seen, p2Seen, game, round+1)
 
 	}
 
-	p1Wins := recurse(p1Cards, p2Cards, map[string]bool{}, map[string]bool{}, 1)
+	p1Wins := recurse(p1Cards, p2Cards, map[string]bool{}, map[string]bool{}, gameCount, 1)
+
 	fmt.Println(p1Wins)
 	fmt.Println(p1Cards, p2Cards)
 
