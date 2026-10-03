@@ -39,7 +39,7 @@ func GetCards(data []byte) (Hand, error) {
 	return res, nil
 }
 
-func CalculateScore(cards []int) int {
+func CaclulateScore(cards []int) int {
 	var res int
 	deckSize := len(cards)
 
@@ -73,38 +73,38 @@ func SolvePartOne(p1Cards, p2Cards Hand) int {
 
 	var score int
 	if len(p1Cards) > 0 {
-		score = CalculateScore(p1Cards)
+		score = CaclulateScore(p1Cards)
 	}
 
 	if len(p2Cards) > 0 {
-		score = CalculateScore(p2Cards)
+		score = CaclulateScore(p2Cards)
 	}
 
 	return score
 
 }
 
-func SolvePartTwo(p1Cards, p2Cards Hand) {
+func SolvePartTwo(p1Cards, p2Cards Hand) int {
 
 	gameCount := 1
 	// bool represents if p1 wins
-	var recurse func(p1Hand, p2Hand Hand, p1Seen, p2Seen map[string]bool, game int, round int) bool
-	recurse = func(p1Hand, p2Hand Hand, p1Seen, p2Seen map[string]bool, game int, round int) bool {
+	var recurse func(p1Hand, p2Hand Hand, p1Seen, p2Seen map[string]bool, game int, round int) (bool, Hand, Hand)
+	recurse = func(p1Hand, p2Hand Hand, p1Seen, p2Seen map[string]bool, game int, round int) (bool, Hand, Hand) {
 
-		fmt.Println(p1Hand, p2Hand, game, round)
+		// fmt.Println(p1Hand, p2Hand, game, round)
 
 		// exit condition: player one lost
 		if len(p1Hand) == 0 {
-			return false
+			return false, p1Hand, p2Hand
 		}
 
 		// exit condition: player one wins
 		if len(p2Hand) == 0 {
-			return true
+			return true, p1Hand, p2Hand
 		}
 
 		if p1Seen[p1Hand.GetString()] && p2Seen[p2Hand.GetString()] {
-			return true
+			return true, p1Hand, p2Hand
 		}
 
 		p1Seen[p1Hand.GetString()] = true
@@ -116,7 +116,8 @@ func SolvePartTwo(p1Cards, p2Cards Hand) {
 		// Subgame condition
 		if p1Card <= len(p1Hand) && p2Card <= len(p2Hand) {
 			gameCount++
-			p1Wins = p1Wins || recurse(slices.Clone(p1Hand[:p1Card]), slices.Clone(p2Hand[:p2Card]), map[string]bool{}, map[string]bool{}, gameCount, 1)
+			res, _, _ := recurse(slices.Clone(p1Hand[:p1Card]), slices.Clone(p2Hand[:p2Card]), map[string]bool{}, map[string]bool{}, gameCount, 1)
+			p1Wins = p1Wins || res
 		} else if p1Card > p2Card {
 			p1Wins = true
 		} else if p1Card < p2Card {
@@ -139,16 +140,23 @@ func SolvePartTwo(p1Cards, p2Cards Hand) {
 
 	}
 
-	p1Wins := recurse(p1Cards, p2Cards, map[string]bool{}, map[string]bool{}, gameCount, 1)
+	p1Wins, p1HandFinal, p2HandFinal := recurse(p1Cards, p2Cards, map[string]bool{}, map[string]bool{}, gameCount, 1)
 
-	fmt.Println(p1Wins)
-	fmt.Println(p1Cards, p2Cards)
+	var score int
+	switch p1Wins {
+	case true:
+		score = CaclulateScore(p1HandFinal)
+	case false:
+		score = CaclulateScore(p2HandFinal)
+	}
+
+	return score
 
 }
 
 func main() {
-	p1Data, err := common.ReadInput("player1Example.txt")
-	// p1Data, err := common.ReadInput("player1.txt")
+	// p1Data, err := common.ReadInput("player1Example.txt")
+	p1Data, err := common.ReadInput("player1.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -158,8 +166,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	p2Data, err := common.ReadInput("player2Example.txt")
-	// p2Data, err := common.ReadInput("player2.txt")
+	// p2Data, err := common.ReadInput("player2Example.txt")
+	p2Data, err := common.ReadInput("player2.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -172,6 +180,7 @@ func main() {
 	res := SolvePartOne(p1Cards, p2Cards)
 	fmt.Println(res)
 
-	SolvePartTwo(p1Cards, p2Cards)
+	res2 := SolvePartTwo(p1Cards, p2Cards)
+	fmt.Println(res2)
 
 }
