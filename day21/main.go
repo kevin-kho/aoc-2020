@@ -55,7 +55,8 @@ func GetFoods(data []byte) []Food {
 	return res
 }
 
-func SolvePartOne(foods []Food) int {
+func SolvePartOne(foods []Food) (int, map[string]int) {
+
 	allergenSet := make(map[string]bool)
 	for _, f := range foods {
 		maps.Copy(allergenSet, f.Allergens)
@@ -102,7 +103,47 @@ func SolvePartOne(foods []Food) int {
 		count += val
 	}
 
-	return count
+	return count, ingredientCt
+
+}
+
+func SolvePartTwo(foods []Food, inertIngredients map[string]int) {
+
+	allergenSet := make(map[string]bool)
+	for _, f := range foods {
+		maps.Copy(allergenSet, f.Allergens)
+	}
+
+	activeIngredients := make(map[string]bool)
+	for _, f := range foods {
+		maps.Copy(activeIngredients, f.Ingredients)
+	}
+	for ingre := range inertIngredients {
+		delete(activeIngredients, ingre)
+	}
+
+	mp := make(map[string]map[string]int)
+	for ingre := range activeIngredients {
+		mp[ingre] = map[string]int{}
+	}
+
+	for _, f := range foods {
+		if len(f.Allergens) == 0 {
+			continue
+		}
+
+		for ingre := range f.Ingredients {
+			if _, ok := inertIngredients[ingre]; ok {
+				continue
+			}
+
+			for a := range f.Allergens {
+				mp[ingre][a]++
+			}
+		}
+	}
+
+	fmt.Println(mp)
 
 }
 
@@ -116,7 +157,9 @@ func main() {
 
 	foods := GetFoods(data)
 
-	res := SolvePartOne(foods)
+	res, inertIngredients := SolvePartOne(foods)
 	fmt.Println(res)
+
+	SolvePartTwo(foods, inertIngredients)
 
 }
