@@ -52,13 +52,36 @@ func CreateLinkedList(input int) DoublyLinkedList {
 }
 
 func SolvePartOne(ll DoublyLinkedList) {
-	seen := make(map[*Node]bool)
+	// seen := make(map[*Node]bool)
 	p := ll.Head
-	for !seen[p] {
-		fmt.Println(*p)
-		seen[p] = true
+
+	for range 100 {
+
+		// Take next 3 cups
+		l := p.Next
+		cupVals := map[int]bool{}
+		r := p
+		for range 3 {
+			r = r.Next
+			cupVals[r.Val] = true
+		}
+
+		// Determine destination cup
+		dst := p.Val - 1
+		for cupVals[dst] {
+			dst -= 1
+			if dst <= 0 {
+				dst += 9
+			}
+		}
+
+		fmt.Println(l.Val, r.Val, cupVals, dst, ll.Mp[dst])
+
+		break
 		p = p.Next
 	}
+
+	fmt.Println("Done")
 
 }
 
