@@ -51,6 +51,24 @@ func CreateLinkedList(input int) DoublyLinkedList {
 
 }
 
+func CollectValues(head *Node) int {
+	var res int
+	seen := make(map[*Node]bool)
+	p := head
+
+	// skip 1 node
+	seen[p] = true
+	p = p.Next
+
+	for !seen[p] {
+		res = res*10 + p.Val
+		seen[p] = true
+		p = p.Next
+	}
+
+	return res
+}
+
 func SolvePartOne(ll DoublyLinkedList) {
 	// seen := make(map[*Node]bool)
 	p := ll.Head
@@ -68,6 +86,9 @@ func SolvePartOne(ll DoublyLinkedList) {
 
 		// Determine destination cup
 		dst := p.Val - 1
+		if dst == 0 {
+			dst += 9
+		}
 		for cupVals[dst] {
 			dst -= 1
 			if dst <= 0 {
@@ -75,20 +96,30 @@ func SolvePartOne(ll DoublyLinkedList) {
 			}
 		}
 
-		fmt.Println(l.Val, r.Val, cupVals, dst, ll.Mp[dst])
+		// fmt.Println(l.Val, r.Val, cupVals, dst, ll.Mp[dst])
 
-		break
+		// Unhook the 3 cups
+		l.Prev.Next, r.Next.Prev = r.Next, l.Prev
+
+		// Rehook the 3 cups
+		dstNode := ll.Mp[dst]
+		dstNodeNxt := dstNode.Next
+
+		dstNode.Next, l.Prev = l, dstNode
+		dstNodeNxt.Prev, r.Next = r, dstNodeNxt
+
 		p = p.Next
 	}
 
-	fmt.Println("Done")
+	val := CollectValues(ll.Mp[1])
+	fmt.Println(val)
 
 }
 
 func main() {
-	fmt.Println("Hello World")
 
-	input := 389125467
+	// input := 389125467
+	input := 614752839
 
 	ll := CreateLinkedList(input)
 	SolvePartOne(ll)
