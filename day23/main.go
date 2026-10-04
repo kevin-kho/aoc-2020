@@ -16,6 +16,25 @@ type DoublyLinkedList struct {
 	Head *Node
 }
 
+func (ll *DoublyLinkedList) AddRemainingNodes() {
+	tail := ll.Head.Prev
+	for val := 10; val <= 1e6; val++ {
+		ll.Mp[val] = &Node{
+			Val:  val,
+			Next: nil,
+			Prev: nil,
+		}
+
+		tail.Next, ll.Mp[val].Prev = ll.Mp[val], tail
+
+		tail = tail.Next
+	}
+
+	ll.Head.Prev = tail
+	tail.Next = ll.Head
+
+}
+
 func CreateLinkedList(input int) DoublyLinkedList {
 	var nxt *Node
 	var tail *Node
@@ -69,11 +88,10 @@ func CollectValues(head *Node) int {
 	return res
 }
 
-func SolvePartOne(ll DoublyLinkedList) {
-	// seen := make(map[*Node]bool)
+func Move(ll *DoublyLinkedList, turns int, maxVal int) {
 	p := ll.Head
 
-	for range 100 {
+	for range turns {
 
 		// Take next 3 cups
 		l := p.Next
@@ -87,12 +105,12 @@ func SolvePartOne(ll DoublyLinkedList) {
 		// Determine destination cup
 		dst := p.Val - 1
 		if dst == 0 {
-			dst += 9
+			dst += maxVal
 		}
 		for cupVals[dst] {
 			dst -= 1
 			if dst <= 0 {
-				dst += 9
+				dst += maxVal
 			}
 		}
 
@@ -111,9 +129,6 @@ func SolvePartOne(ll DoublyLinkedList) {
 		p = p.Next
 	}
 
-	val := CollectValues(ll.Mp[1])
-	fmt.Println(val)
-
 }
 
 func main() {
@@ -121,6 +136,16 @@ func main() {
 	// input := 389125467
 	input := 614752839
 
+	// Part One
 	ll := CreateLinkedList(input)
-	SolvePartOne(ll)
+	Move(&ll, 100, 9)
+	res := CollectValues(ll.Mp[1])
+	fmt.Println(res)
+
+	ll2 := CreateLinkedList(input)
+	ll2.AddRemainingNodes()
+	Move(&ll2, 10e6, 1e6)
+	res2 := ll2.Mp[1].Next.Val * ll2.Mp[1].Next.Next.Val
+	fmt.Println(res2)
+
 }
