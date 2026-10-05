@@ -37,26 +37,15 @@ func DirToPos(dir string) Pos {
 }
 
 func GetAdjs() []Pos {
-	var res []Pos
-	for x := -1; x < 2; x++ {
-		for y := -1; y < 2; y++ {
 
-			if y == 0 && (x == 0 || common.IntAbs(x) == 1) {
-				continue
-			}
-			if x == 0 {
-				continue
-			}
-
-			res = append(res, Pos{
-				X: x,
-				Y: y,
-			})
-		}
+	res := []Pos{
+		{-1, 1},
+		{1, 1},
+		{-1, -1},
+		{1, -1},
+		{0, 2},
+		{0, -2},
 	}
-
-	res = append(res, Pos{0, 2})
-	res = append(res, Pos{0, -2})
 
 	return res
 }
