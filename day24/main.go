@@ -10,7 +10,6 @@ import (
 
 type Floor struct {
 	Black map[Pos]bool
-	White map[Pos]bool
 }
 
 type Directions []Pos
@@ -109,20 +108,15 @@ func GetInitialFloor(dirs []Directions) Floor {
 	}
 
 	black := make(map[Pos]bool)
-	white := make(map[Pos]bool)
 
 	for pos, isBlack := range mp {
-		switch isBlack {
-		case true:
+		if isBlack {
 			black[pos] = true
-		case false:
-			white[pos] = true
 		}
 	}
 
 	return Floor{
 		Black: black,
-		White: white,
 	}
 
 }
@@ -136,7 +130,7 @@ func SolvePartTwo(floor Floor) {
 	for range 10 {
 
 		newBlack := make(map[Pos]bool)
-		newWhite := make(map[Pos]bool)
+		white := make(map[Pos]int)
 		for pos := range floor.Black {
 			var blackNei int
 			for _, d := range adj {
@@ -148,39 +142,24 @@ func SolvePartTwo(floor Floor) {
 				if floor.Black[adjPos] {
 					blackNei++
 				} else {
-					floor.White[adjPos] = true
+					white[adjPos]++
 				}
 			}
 			if blackNei == 0 || blackNei > 2 {
-				newWhite[pos] = true
+				continue
 			} else {
 				newBlack[pos] = true
 			}
 
 		}
 
-		for pos := range floor.White {
-			var blackNei int
-			for _, d := range adj {
-				adjPos := Pos{
-					X: pos.X + d.X,
-					Y: pos.Y + d.Y,
-				}
-
-				if floor.Black[adjPos] {
-					blackNei++
-				}
-
-			}
-			if blackNei == 2 {
+		for pos, ct := range white {
+			if ct == 2 {
 				newBlack[pos] = true
-			} else {
-				newWhite[pos] = true
 			}
 		}
 
 		floor.Black = newBlack
-		floor.White = newWhite
 
 		fmt.Println(len(floor.Black))
 	}
