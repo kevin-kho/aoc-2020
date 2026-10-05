@@ -23,10 +23,10 @@ func (p *Pos) Move(d Pos) {
 func DirToPos(dir string) Pos {
 	mp := map[string]Pos{
 		"ne": {1, 1},
-		"e":  {1, 0},
+		"e":  {2, 0},
 		"se": {1, -1},
 		"sw": {-1, -1},
-		"w":  {-1, 0},
+		"w":  {-2, 0},
 		"nw": {-1, 1},
 	}
 	return mp[dir]
@@ -91,7 +91,8 @@ func SolvePartOne(dirs []Directions) int {
 
 func main() {
 
-	data, err := common.ReadInput("inputExample.txt")
+	// data, err := common.ReadInput("inputExample.txt")
+	data, err := common.ReadInput("input.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
