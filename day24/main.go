@@ -45,6 +45,9 @@ func GetAdjs() []Pos {
 			if y == 0 && (x == 0 || common.IntAbs(x) == 1) {
 				continue
 			}
+			if x == 0 {
+				continue
+			}
 
 			res = append(res, Pos{
 				X: x,
@@ -52,6 +55,9 @@ func GetAdjs() []Pos {
 			})
 		}
 	}
+
+	res = append(res, Pos{0, 2})
+	res = append(res, Pos{0, -2})
 
 	return res
 }
@@ -121,10 +127,70 @@ func GetInitialFloor(dirs []Directions) Floor {
 
 }
 
+func SolvePartTwo(floor Floor) {
+
+	fmt.Println(floor)
+	adj := GetAdjs()
+	fmt.Println(adj)
+
+	for range 10 {
+
+		newBlack := make(map[Pos]bool)
+		newWhite := make(map[Pos]bool)
+		for pos := range floor.Black {
+			var blackNei int
+			for _, d := range adj {
+				adjPos := Pos{
+					X: pos.X + d.X,
+					Y: pos.Y + d.Y,
+				}
+
+				if floor.Black[adjPos] {
+					blackNei++
+				} else {
+					floor.White[adjPos] = true
+				}
+			}
+			if blackNei == 0 || blackNei > 2 {
+				newWhite[pos] = true
+			} else {
+				newBlack[pos] = true
+			}
+
+		}
+
+		for pos := range floor.White {
+			var blackNei int
+			for _, d := range adj {
+				adjPos := Pos{
+					X: pos.X + d.X,
+					Y: pos.Y + d.Y,
+				}
+
+				if floor.Black[adjPos] {
+					blackNei++
+				}
+
+			}
+			if blackNei == 2 {
+				newBlack[pos] = true
+			} else {
+				newWhite[pos] = true
+			}
+		}
+
+		floor.Black = newBlack
+		floor.White = newWhite
+
+		fmt.Println(len(floor.Black))
+	}
+
+}
+
 func main() {
 
-	// data, err := common.ReadInput("inputExample.txt")
-	data, err := common.ReadInput("input.txt")
+	data, err := common.ReadInput("inputExample.txt")
+	// data, err := common.ReadInput("input.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -134,7 +200,6 @@ func main() {
 	floor := GetInitialFloor(dirs)
 	fmt.Println(len(floor.Black))
 
-	adj := GetAdjs()
-	fmt.Println(adj)
+	SolvePartTwo(floor)
 
 }
