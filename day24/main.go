@@ -8,6 +8,11 @@ import (
 	"github.com/kevin-kho/aoc-utilities/common"
 )
 
+type Floor struct {
+	Black map[Pos]bool
+	White map[Pos]bool
+}
+
 type Directions []Pos
 
 type Pos struct {
@@ -30,6 +35,25 @@ func DirToPos(dir string) Pos {
 		"nw": {-1, 1},
 	}
 	return mp[dir]
+}
+
+func GetAdjs() []Pos {
+	var res []Pos
+	for x := -1; x < 2; x++ {
+		for y := -1; y < 2; y++ {
+
+			if y == 0 && (x == 0 || common.IntAbs(x) == 1) {
+				continue
+			}
+
+			res = append(res, Pos{
+				X: x,
+				Y: y,
+			})
+		}
+	}
+
+	return res
 }
 
 func ParseDirections(dirs []byte) Directions {
@@ -68,7 +92,7 @@ func GetDirections(data []byte) []Directions {
 
 }
 
-func SolvePartOne(dirs []Directions) int {
+func GetInitialFloor(dirs []Directions) Floor {
 	mp := make(map[Pos]bool) // false: white, true: black
 	for _, dir := range dirs {
 		tile := Pos{0, 0}
@@ -78,14 +102,22 @@ func SolvePartOne(dirs []Directions) int {
 		mp[tile] = !mp[tile]
 	}
 
-	var count int
-	for _, isBlack := range mp {
-		if isBlack {
-			count++
+	black := make(map[Pos]bool)
+	white := make(map[Pos]bool)
+
+	for pos, isBlack := range mp {
+		switch isBlack {
+		case true:
+			black[pos] = true
+		case false:
+			white[pos] = true
 		}
 	}
 
-	return count
+	return Floor{
+		Black: black,
+		White: white,
+	}
 
 }
 
@@ -99,7 +131,10 @@ func main() {
 	data = common.TrimNewLineSuffix(data)
 
 	dirs := GetDirections(data)
-	res := SolvePartOne(dirs)
-	fmt.Println(res)
+	floor := GetInitialFloor(dirs)
+	fmt.Println(len(floor.Black))
+
+	adj := GetAdjs()
+	fmt.Println(adj)
 
 }
